@@ -11,6 +11,7 @@ import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'check_user_visit_first_time.dart';
+import 'get_detail.dart';
 
 void main() {
   AwesomeNotifications().initialize(
@@ -54,13 +55,18 @@ class DemoPage extends StatefulWidget {
 }
 
 class _DemoPageState extends State<DemoPage> {
+  int contactMaxLength = 5;
   bool isButtonPress = false;
   int countWrongPassword = 0;
   TextEditingController passwordEditingController = TextEditingController();
   int count = 0;
   NotificationServices notificationServices = NotificationServices();
   bool isDialogOpen = false;
-  int numberOfRelation = 1;
+
+  List<String> nameList = [];
+  List<String> contactList = [];
+  List<String> emailList = [];
+  List<String> relationList = [];
 
   // address variable
   late String full_address;
@@ -68,8 +74,8 @@ class _DemoPageState extends State<DemoPage> {
   @override
   void initState() {
     super.initState();
-    locationPermission();
     getTotalNumberOfContactDetails();
+    locationPermission();
     isDialogOpen = false;
     // TODO: implement initState
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
@@ -100,13 +106,6 @@ class _DemoPageState extends State<DemoPage> {
           }
         });
       }
-      // notificationServices.sendNotification(
-      //     "Are You Save ?", "If you are save then please visit are app");
-      // showDilog("Testgin ");
-      // });
-      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      //   content: Text("Shake"),
-      // ));
     });
   }
 
@@ -122,15 +121,28 @@ class _DemoPageState extends State<DemoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomSheet: Container(
-        color: Colors.red,
-        height: 150,
-        child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return showRelation(index);
-            }),
+      bottomSheet: Column(
+        children: [
+          Container(
+            color: Colors.greenAccent,
+            height: 150,
+            child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: emailList.length,
+                itemBuilder: (context, index) {
+                  return showRelation(index);
+                }),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              GetContactDetail().getContactDetail(context);
+              setState(() {});
+            },
+            child: const CircleAvatar(
+              child: const Icon(Icons.add),
+            ),
+          )
+        ],
       ),
       body: Center(
           child: MaterialButton(
@@ -246,19 +258,41 @@ class _DemoPageState extends State<DemoPage> {
   }
 
   Widget showRelation(int i) {
+    // String name = relationName[i];
+    String name = nameList[i];
     return Container(
       padding: const EdgeInsets.only(top: 15, right: 30),
       child: Column(
-        children: const [
-          CircleAvatar(
-            radius: 25,
-            child: Text(
-              "A",
-              style: TextStyle(fontSize: 30),
+        children: [
+          Stack(children: [
+            CircleAvatar(
+              radius: 25,
+              child: Text(
+                name.substring(0, 1).toUpperCase(),
+                style: const TextStyle(fontSize: 30),
+              ),
             ),
-          ),
-          Text("Naveen"),
-          Text("Brother"),
+            InkWell(
+              onTap: () {
+                removeFormSharedPreference(i);
+                ShowSnackBar.showInSnackBar(
+                    "it remove shortly", context, Colors.red);
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(
+                  left: 30,
+                ),
+                child: Icon(
+                  Icons.minimize,
+                  size: 25,
+                  color: Colors.red,
+                ),
+              ),
+            )
+          ]),
+          Text(name),
+          // Text(relationType[i]),
+          Text(relationList[i]),
         ],
       ),
     );
@@ -333,7 +367,38 @@ class _DemoPageState extends State<DemoPage> {
     });
   }
 
-  void getTotalNumberOfContactDetails()async {
-    SharedPreferences sharedPreferences=Sh
+  void getTotalNumberOfContactDetails() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    nameList = sharedPreferences.getStringList("nameList")!;
+    contactList = sharedPreferences.getStringList("contactList")!;
+    emailList = sharedPreferences.getStringList("emailList")!;
+    relationList = sharedPreferences.getStringList("relationList")!;
+
+    setState(() {});
+  }
+
+  void removeFormSharedPreference(int i) {
+    // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    // sharedPreferences.remove("name$i");
+    // sharedPreferences.remove("contact$i");
+    // sharedPreferences.remove("email$i");
+    // sharedPreferences.remove("relation$i");
+    // int total = sharedPreferences.getInt("total")!;
+
+    nameList.removeAt(i);
+    relationList.removeAt(i);
+    contactList.removeAt(i);
+    emailList.removeAt(i);
+    saveData();
+    setState(() {});
+  }
+
+  saveData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setStringList("nameList", nameList);
+    sharedPreferences.setStringList("contactList", contactList);
+    sharedPreferences.setStringList("emailList", emailList);
+    sharedPreferences.setStringList("relationList", relationList);
   }
 }
