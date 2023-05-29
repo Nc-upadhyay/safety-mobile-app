@@ -134,9 +134,11 @@ class SplaceScreensWs extends StatelessWidget {
                     "Enter contact", context, Colors.red);
                 //store value in shared preference
               } else {
+                relation = Provider.of<RelationProvider>(context, listen: false)
+                    .getRelation();
                 StoreValueInSharedPreference(
                         name.text, contextNumber.text, email.text, relation)
-                    .store();
+                    .storeDataFirstTime();
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const DemoPage()));
               }

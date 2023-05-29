@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
@@ -90,7 +92,6 @@ class _DemoPageState extends State<DemoPage> {
       if (isButtonPress) {
         triggerNotifications();
       }
-      print("=================shake  $isButtonPress  $isDialogOpen");
       count++;
       if (isButtonPress && !isDialogOpen) {
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -121,29 +122,40 @@ class _DemoPageState extends State<DemoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomSheet: Column(
-        children: [
-          Container(
-            color: Colors.greenAccent,
-            height: 150,
+      bottomSheet: Container(
+          color: Colors.greenAccent,
+          height: 150,
+          child: Expanded(
             child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: emailList.length,
                 itemBuilder: (context, index) {
                   return showRelation(index);
                 }),
-          ),
-          FloatingActionButton(
-            onPressed: () {
-              GetContactDetail().getContactDetail(context);
-              setState(() {});
-            },
-            child: const CircleAvatar(
-              child: const Icon(Icons.add),
-            ),
-          )
-        ],
-      ),
+          )),
+      // bottomSheet: Column(
+      //   children: [
+      //     Container(
+      //       color: Colors.greenAccent,
+      //       height: 150,
+      //       child: ListView.builder(
+      //           scrollDirection: Axis.horizontal,
+      //           itemCount: emailList.length,
+      //           itemBuilder: (context, index) {
+      //             return showRelation(index);
+      //           }),
+      //     ),
+      //     // FloatingActionButton(
+      //     //   onPressed: () {
+      //     //     GetContactDetail().getContactDetail(context);
+      //     //     setState(() {});
+      //     //   },
+      //     //   child: const CircleAvatar(
+      //     //     child: const Icon(Icons.add),
+      //     //   ),
+      //     // )
+      //   ],
+      // ),
       body: Center(
           child: MaterialButton(
         color: Colors.blueAccent,
@@ -288,10 +300,20 @@ class _DemoPageState extends State<DemoPage> {
                   color: Colors.red,
                 ),
               ),
+            ),
+            InkWell(
+              onTap: () {
+                GetContactDetail().getContactDetail(context);
+                Future.delayed(const Duration(milliseconds: 2000), () {
+                  setState(() {
+                    super.setState(() {});
+                  });
+                });
+              },
+              child: const Icon(Icons.add),
             )
           ]),
           Text(name),
-          // Text(relationType[i]),
           Text(relationList[i]),
         ],
       ),
@@ -302,18 +324,15 @@ class _DemoPageState extends State<DemoPage> {
     print("======================== get memberDetail is running");
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     int? totalRegisterMember = sharedPreferences.getInt("total");
-    for (int i = 1; i <= totalRegisterMember!; i++) {
-      String? name = sharedPreferences.getString("name$i");
-      String? email = sharedPreferences.getString("email$i");
-      String? contact = sharedPreferences.getString("contact$i");
-      String? relation = sharedPreferences.getString("relation$i");
-      String con = "$name $email $contact $relation";
-      print("======== adddress ${totalRegisterMember}$full_address");
+    for (int i = 0; i <= nameList.length; i++) {
+      String name = nameList[i];
+      String email = emailList[i];
+      String contact = contactList[i];
       String msg =
-          "Dear $name, \n your daughter in some trable please contact to her "
+          "Dear $name, \n your Naveen in some trouble please contact to her "
           "their last location is bellow"
           "$full_address";
-      sendMail(name!, email!, msg);
+      sendMail(name, email, msg);
     }
   }
 
@@ -374,18 +393,12 @@ class _DemoPageState extends State<DemoPage> {
     contactList = sharedPreferences.getStringList("contactList")!;
     emailList = sharedPreferences.getStringList("emailList")!;
     relationList = sharedPreferences.getStringList("relationList")!;
-
+    developer.log("name list is ============================= $nameList");
+    developer.log('log me', name: 'my.app.category');
     setState(() {});
   }
 
   void removeFormSharedPreference(int i) {
-    // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    // sharedPreferences.remove("name$i");
-    // sharedPreferences.remove("contact$i");
-    // sharedPreferences.remove("email$i");
-    // sharedPreferences.remove("relation$i");
-    // int total = sharedPreferences.getInt("total")!;
-
     nameList.removeAt(i);
     relationList.removeAt(i);
     contactList.removeAt(i);
