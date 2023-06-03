@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:motion_detection/relation_provider.dart';
 import 'package:motion_detection/show_snack_bar.dart';
@@ -10,7 +9,6 @@ import 'drop_down_list.dart';
 class GetContactDetail {
   TextEditingController name = TextEditingController();
   TextEditingController contextNumber = TextEditingController();
-  TextEditingController email = TextEditingController();
 
   getContactDetail(BuildContext context) {
     showDialog(
@@ -34,32 +32,14 @@ class GetContactDetail {
                         maxLength: 15,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter name';
+                            return 'Please relative name';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(5)),
-                            hintText: 'Enter Your Name'),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 3),
-                      child: TextFormField(
-                        controller: email,
-                        maxLength: 25,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter email';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            hintText: 'Enter Your Email'),
+                            hintText: 'Enter relative Name'),
                       ),
                     ),
                     Padding(
@@ -70,14 +50,14 @@ class GetContactDetail {
                         maxLength: 15,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter contact Number';
+                            return 'Please ente relativer contact Number';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(5)),
-                            hintText: 'Enter Contact'),
+                            hintText: 'Enter relative Contact'),
                       ),
                     ),
                     CreateDropDown()
@@ -91,13 +71,6 @@ class GetContactDetail {
                     if (name.text.isEmpty) {
                       ShowSnackBar.showInSnackBar(
                           "Enter Name", context, Colors.red);
-                    } else if (email.text.isEmpty) {
-                      ShowSnackBar.showInSnackBar(
-                          "Enter Email", context, Colors.red);
-                    } else if (!EmailValidator.validate(
-                        email.text.toUpperCase())) {
-                      ShowSnackBar.showInSnackBar(
-                          "Enter valid Email", context, Colors.red);
                     } else if (contextNumber.text.isEmpty ||
                         contextNumber.text.length != 10) {
                       ShowSnackBar.showInSnackBar(
@@ -106,8 +79,8 @@ class GetContactDetail {
                       String relation =
                           Provider.of<RelationProvider>(context, listen: false)
                               .getRelation();
-                      StoreValueInSharedPreference(name.text,
-                              contextNumber.text, email.text, relation)
+                      StoreValueInSharedPreference(
+                              name.text, contextNumber.text, relation)
                           .store();
                       Navigator.pop(context);
                     }

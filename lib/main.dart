@@ -1,8 +1,5 @@
-import 'dart:developer' as developer;
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:motion_detection/notification_service.dart';
@@ -11,6 +8,7 @@ import 'package:motion_detection/show_snack_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sms/sms.dart';
 
 import 'check_user_visit_first_time.dart';
 import 'get_detail.dart';
@@ -67,11 +65,14 @@ class _DemoPageState extends State<DemoPage> {
 
   List<String> nameList = [];
   List<String> contactList = [];
-  List<String> emailList = [];
   List<String> relationList = [];
 
+  String Userpasword = "";
+  String NameOfUser = "";
+  String contactNumber1 = "";
+
   // address variable
-  late String full_address;
+  String full_address = "";
 
   @override
   void initState() {
@@ -90,23 +91,28 @@ class _DemoPageState extends State<DemoPage> {
 
     ShakeDetector shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if (isButtonPress) {
-        triggerNotifications();
+        Future.delayed(const Duration(milliseconds: 2000), () {
+          print("=============== Notification triger");
+          triggerNotifications();
+        });
       }
       count++;
-      if (isButtonPress && !isDialogOpen) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          showAlert();
-        });
-        // showAlert()
-        isDialogOpen = true;
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        print("=================== under calling showalder");
 
-        Future.delayed(const Duration(milliseconds: 35000), () {
-          if (isDialogOpen) {
-            print("============ after 15 secound");
-            getMemberDetail();
-          }
-        });
-      }
+        if (isButtonPress && !isDialogOpen) {
+          showAlert();
+          // showAlert()
+          isDialogOpen = true;
+
+          //when user did not click in any button
+          Future.delayed(const Duration(milliseconds: 35000), () {
+            if (isDialogOpen) {
+              getMemberDetail();
+            }
+          });
+        }
+      });
     });
   }
 
@@ -114,7 +120,6 @@ class _DemoPageState extends State<DemoPage> {
   void dispose() {
     super.dispose();
     if (isDialogOpen) {
-      print("========== before dispose");
       getMemberDetail();
     }
   }
@@ -125,49 +130,23 @@ class _DemoPageState extends State<DemoPage> {
       bottomSheet: Container(
           color: Colors.greenAccent,
           height: 150,
-          child: Expanded(
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: emailList.length,
-                itemBuilder: (context, index) {
-                  return showRelation(index);
-                }),
-          )),
-      // bottomSheet: Column(
-      //   children: [
-      //     Container(
-      //       color: Colors.greenAccent,
-      //       height: 150,
-      //       child: ListView.builder(
-      //           scrollDirection: Axis.horizontal,
-      //           itemCount: emailList.length,
-      //           itemBuilder: (context, index) {
-      //             return showRelation(index);
-      //           }),
-      //     ),
-      //     // FloatingActionButton(
-      //     //   onPressed: () {
-      //     //     GetContactDetail().getContactDetail(context);
-      //     //     setState(() {});
-      //     //   },
-      //     //   child: const CircleAvatar(
-      //     //     child: const Icon(Icons.add),
-      //     //   ),
-      //     // )
-      //   ],
-      // ),
+          child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: contactList.length,
+              itemBuilder: (context, index) {
+                return showRelation(index);
+              })),
       body: Center(
           child: MaterialButton(
         color: Colors.blueAccent,
         shape: const CircleBorder(),
         onPressed: () {
-          print("============= Button pressed");
           isButtonPress = isButtonPress ? false : true;
           setState(() {});
-          print("============= isButtonpress  $isButtonPress");
         },
         padding: EdgeInsets.all(35),
-        child: isButtonPress ? Text("I'm Safe") : Text("Protect me \n $count"),
+        child:
+            isButtonPress ? const Text("I'm Safe") : const Text("Protect me"),
       )),
     );
   }
@@ -259,9 +238,8 @@ class _DemoPageState extends State<DemoPage> {
   }
 
   bool matchPassword() {
-    int pass = 1234;
     print("${passwordEditingController.text}");
-    if (passwordEditingController.text.compareTo(pass.toString()) == 0) {
+    if (passwordEditingController.text.compareTo(Userpasword) == 0) {
       print("============= pasword match");
       return true;
     } else {
@@ -304,11 +282,15 @@ class _DemoPageState extends State<DemoPage> {
             InkWell(
               onTap: () {
                 GetContactDetail().getContactDetail(context);
-                Future.delayed(const Duration(milliseconds: 2000), () {
+                Future.delayed(const Duration(milliseconds: 15000), () {
                   setState(() {
-                    super.setState(() {});
+                    super.setState(() {
+                      contactList.length;
+                    });
                   });
                 });
+                ShowSnackBar.showInSnackBar(
+                    "It will add shortly", context, Colors.greenAccent);
               },
               child: const Icon(Icons.add),
             )
@@ -321,37 +303,32 @@ class _DemoPageState extends State<DemoPage> {
   }
 
   void getMemberDetail() async {
-    print("======================== get memberDetail is running");
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    int? totalRegisterMember = sharedPreferences.getInt("total");
-    for (int i = 0; i <= nameList.length; i++) {
+    for (int i = 0; i < nameList.length; i++) {
+      print("contact ================== $contactList");
       String name = nameList[i];
-      String email = emailList[i];
-      String contact = contactList[i];
-      String msg =
-          "Dear $name, \n your Naveen in some trouble please contact to her "
-          "their last location is bellow"
-          "$full_address";
-      sendMail(name, email, msg);
+      String contactN = contactList[i];
+      String msg = "Dear $name,${NameOfUser.trim()} in some trouble"
+          "the last location is bellow "
+          "$full_address\n"
+          "you Can contact: "
+          "$contactNumber1";
+      sendMail(name, contactN, msg);
+      // if (i == nameList.length - 1) {
+      //   // makeCall(contactN);
+      // }
     }
   }
 
-  Future sendMail(String name, String email, String message) async {
-    print("=============== under email send method");
-    final Email emailSend = Email(
-        body: message,
-        subject: 'Security',
-        recipients: [email],
-        bcc: [email],
-        cc: [email],
-        isHTML: false);
-
+  Future sendMail(String name, String con, String message) async {
+    print("================ contact  $con");
     try {
-      await FlutterEmailSender.send(emailSend);
-      ShowSnackBar.showInSnackBar("Email send", context, Colors.green);
-    } catch (error) {
-      print("---------------------error is  $error");
-      ShowSnackBar.showInSnackBar("Email not send", context, Colors.red);
+      SmsSender smsSender = SmsSender();
+      SmsMessage smsMessage = SmsMessage(con.trim(), message);
+      smsSender.sendSms(smsMessage);
+      ShowSnackBar.showInSnackBar("Message sent", context, Colors.red);
+    } catch (e) {
+      print("exception============== ${e.toString()}");
     }
   }
 
@@ -388,13 +365,12 @@ class _DemoPageState extends State<DemoPage> {
 
   void getTotalNumberOfContactDetails() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
     nameList = sharedPreferences.getStringList("nameList")!;
     contactList = sharedPreferences.getStringList("contactList")!;
-    emailList = sharedPreferences.getStringList("emailList")!;
     relationList = sharedPreferences.getStringList("relationList")!;
-    developer.log("name list is ============================= $nameList");
-    developer.log('log me', name: 'my.app.category');
+    Userpasword = sharedPreferences.getString("UserPass")!;
+    NameOfUser = sharedPreferences.getString("UserName")!;
+    contactNumber1 = sharedPreferences.getString("UserContact")!;
     setState(() {});
   }
 
@@ -402,7 +378,6 @@ class _DemoPageState extends State<DemoPage> {
     nameList.removeAt(i);
     relationList.removeAt(i);
     contactList.removeAt(i);
-    emailList.removeAt(i);
     saveData();
     setState(() {});
   }
@@ -411,7 +386,15 @@ class _DemoPageState extends State<DemoPage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setStringList("nameList", nameList);
     sharedPreferences.setStringList("contactList", contactList);
-    sharedPreferences.setStringList("emailList", emailList);
     sharedPreferences.setStringList("relationList", relationList);
   }
+
+  // makeCall(String num) async {
+  //   final url = 'tel:${num.trim()}';
+  //   if (await canLaunch(url)) {
+  //     await launch(url);
+  //   } else {
+  //     print('=============Could not launch $url');
+  //   }
+  // }
 }

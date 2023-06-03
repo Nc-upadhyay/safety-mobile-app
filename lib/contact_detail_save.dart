@@ -13,6 +13,7 @@ class ContactDetailSave extends StatelessWidget {
   TextEditingController email = TextEditingController();
 
   ContactDetailSave({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold();
@@ -135,7 +136,7 @@ class ContactDetailSave extends StatelessWidget {
                 //store value in shared preference
               } else {
                 StoreValueInSharedPreference(
-                        name.text, contextNumber.text, email.text, relation)
+                        name.text, contextNumber.text, relation)
                     .store();
 
                 // Navigator.of(context).push(

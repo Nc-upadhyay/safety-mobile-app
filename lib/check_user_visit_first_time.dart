@@ -9,7 +9,6 @@ class CheckUserVistFirstTimeOrNot extends StatelessWidget {
   void isUserVisitFirstTime(BuildContext context) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? name = sharedPreferences.getString("name1");
-    // print("=================${name}");
 
     if (name == null) {
       Navigator.of(context)

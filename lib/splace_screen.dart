@@ -1,6 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:motion_detection/main.dart';
+import 'package:motion_detection/personal_information.dart';
 import 'package:motion_detection/relation_provider.dart';
 import 'package:motion_detection/show_snack_bar.dart';
 import 'package:motion_detection/store_value_in_shareprepherence.dart';
@@ -47,21 +47,21 @@ class SplaceScreensWs extends StatelessWidget {
                     ),
                     textbox(
                       name,
-                      "Name",
+                      "Name of your relative",
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                     textbox(
                       email,
-                      "Email",
+                      "Email of your relative",
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                     textbox(
                       contextNumber,
-                      "Contact Number",
+                      "Contact Number of your relative",
                     ),
                     const SizedBox(
                       height: 5,
@@ -137,10 +137,10 @@ class SplaceScreensWs extends StatelessWidget {
                 relation = Provider.of<RelationProvider>(context, listen: false)
                     .getRelation();
                 StoreValueInSharedPreference(
-                        name.text, contextNumber.text, email.text, relation)
+                        name.text, contextNumber.text, relation)
                     .storeDataFirstTime();
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const DemoPage()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const PersonalInformation()));
               }
             },
             child: const Text('Save')));
