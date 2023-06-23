@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:motion_detection/main.dart';
 import 'package:motion_detection/splace_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,10 +13,13 @@ class CheckUserVistFirstTimeOrNot extends StatelessWidget {
 
     if (name == null) {
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => SplaceScreensWs()));
+          .push(MaterialPageRoute(builder: (context) => SplaceScreensWs()))
+          .then((value) => Navigator.pop(context));
     } else {
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const DemoPage()));
+          .push(MaterialPageRoute(builder: (context) => const DemoPage()))
+          // .then((value) => Navigator.pop(context));
+          .then((value) => SystemNavigator.pop());
     }
   }
 

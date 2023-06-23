@@ -15,7 +15,6 @@ class _PersonalInformationState extends State<PersonalInformation> {
   TextEditingController name = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController contact = TextEditingController();
-  TextEditingController contact2 = TextEditingController();
   bool passwordVisible = false;
 
   @override
@@ -35,7 +34,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-            child: Text("Enter your personal information"),
+            child: Text("Enter your personal details"),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
@@ -62,7 +61,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
               maxLength: 25,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter password';
+                  return 'Please enter password for emergency ';
                 }
                 return null;
               },
@@ -115,15 +114,13 @@ class _PersonalInformationState extends State<PersonalInformation> {
                 } else if (contact.text.toString().isEmpty) {
                   ShowSnackBar.showInSnackBar(
                       "Enter primary contact number", context, Colors.red);
-                } else if (contact2.text.isEmpty) {
-                  ShowSnackBar.showInSnackBar(
-                      "Enter secondary contact number", context, Colors.red);
-                  //store value in shared preference
                 } else {
                   StoreValueInSharedPreference.personalDetails(
-                      name.text, contact.text, contact2.text, password.text);
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const DemoPage()));
+                      name.text, contact.text, password.text);
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(
+                          builder: (context) => const DemoPage()))
+                      .then((value) => Navigator.of(context).pop(true));
                 }
               },
               child: const Text('Save'))

@@ -1,16 +1,18 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_sms/flutter_sms.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:motion_detection/check_user_visit_first_time.dart';
 import 'package:motion_detection/notification_service.dart';
 import 'package:motion_detection/relation_provider.dart';
 import 'package:motion_detection/show_snack_bar.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms/sms.dart';
 
-import 'check_user_visit_first_time.dart';
 import 'get_detail.dart';
 
 void main() {
@@ -41,8 +43,8 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (context) => RelationProvider())
       ],
       child: const MaterialApp(
-        home: CheckUserVistFirstTimeOrNot(),
-      ),
+          home: CheckUserVistFirstTimeOrNot() //CheckUserVistFirstTimeOrNot(),
+          ),
     );
   }
 }
@@ -62,6 +64,7 @@ class _DemoPageState extends State<DemoPage> {
   int count = 0;
   NotificationServices notificationServices = NotificationServices();
   bool isDialogOpen = false;
+  DateTime? currentBackPresstime = null;
 
   List<String> nameList = [];
   List<String> contactList = [];
@@ -91,26 +94,21 @@ class _DemoPageState extends State<DemoPage> {
 
     ShakeDetector shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if (isButtonPress) {
-        Future.delayed(const Duration(milliseconds: 2000), () {
-          print("=============== Notification triger");
-          triggerNotifications();
-        });
+        triggerNotifications();
       }
       count++;
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        print("=================== under calling showalder");
-
+      Future.delayed(const Duration(milliseconds: 1000), () {
         if (isButtonPress && !isDialogOpen) {
           showAlert();
-          // showAlert()
+          getlocation();
           isDialogOpen = true;
+        }
+      });
 
-          //when user did not click in any button
-          Future.delayed(const Duration(milliseconds: 35000), () {
-            if (isDialogOpen) {
-              getMemberDetail();
-            }
-          });
+      //when user did not click in any button
+      Future.delayed(const Duration(milliseconds: 30000), () {
+        if (isDialogOpen) {
+          getMemberDetail();
         }
       });
     });
@@ -124,30 +122,116 @@ class _DemoPageState extends State<DemoPage> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    SystemNavigator.pop();
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomSheet: Container(
-          color: Colors.greenAccent,
-          height: 150,
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: contactList.length,
-              itemBuilder: (context, index) {
-                return showRelation(index);
-              })),
-      body: Center(
-          child: MaterialButton(
-        color: Colors.blueAccent,
-        shape: const CircleBorder(),
-        onPressed: () {
-          isButtonPress = isButtonPress ? false : true;
-          setState(() {});
-        },
-        padding: EdgeInsets.all(35),
-        child:
-            isButtonPress ? const Text("I'm Safe") : const Text("Protect me"),
-      )),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        drawer: Drawer(
+            child: Column(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  ListView(
+                    padding: EdgeInsets.all(0),
+                    children: [
+                      const DrawerHeader(
+                          child: UserAccountsDrawerHeader(
+                        decoration: BoxDecoration(color: Colors.green),
+                        accountName: Text(
+                          "abc",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        currentAccountPictureSize: Size.square(50),
+                        currentAccountPicture: CircleAvatar(
+                          backgroundColor: Color.fromARGB(255, 165, 255, 137),
+                          child: Text("A"),
+                        ),
+                        accountEmail: null,
+                      )),
+                      ListTile(
+                        leading: const Icon(Icons.person),
+                        title: const Text(" My Profile"),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.edit),
+                        title: const Text("Change Password"),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.add),
+                        title: const Text("Add contact"),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout),
+                        title: const Text("LogOut"),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.contact_emergency),
+                        title: const Text("Send Message"),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Column(
+                  children: const [
+                    Divider(),
+                    ListTile(
+                        leading: Icon(Icons.settings), title: Text('Facebook')),
+                    ListTile(leading: Icon(Icons.help))
+                  ],
+                ),
+              ),
+            )
+          ],
+        )),
+        bottomSheet: Container(
+            color: Colors.greenAccent,
+            height: 150,
+            child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: contactList.length,
+                itemBuilder: (context, index) {
+                  return showRelation(index);
+                })),
+        body: Center(
+            child: MaterialButton(
+          color: Colors.blueAccent,
+          shape: const CircleBorder(),
+          onPressed: () {
+            isButtonPress = isButtonPress ? false : true;
+            setState(() {});
+          },
+          padding: EdgeInsets.all(35),
+          child:
+              isButtonPress ? const Text("I'm Safe") : const Text("Protect me"),
+        )),
+      ),
     );
   }
 
@@ -200,10 +284,15 @@ class _DemoPageState extends State<DemoPage> {
                         Navigator.pop(context);
                       } else {
                         countWrongPassword++;
-                        ShowSnackBar.showInSnackBar(
-                            "Your have only ${3 - countWrongPassword} chance to entry right password",
-                            context,
-                            Colors.red);
+                        if (countWrongPassword < 3) {
+                          ShowSnackBar.showInSnackBar(
+                              "Your have only ${3 - countWrongPassword} chance to entry right password",
+                              context,
+                              Colors.red);
+                        } else {
+                          ShowSnackBar.showInSnackBar(
+                              "Your exceed the limit ", context, Colors.red);
+                        }
                         if (countWrongPassword == 3) {
                           countWrongPassword == 0;
                           getMemberDetail(); // sending mail to his/her family
@@ -303,32 +392,31 @@ class _DemoPageState extends State<DemoPage> {
   }
 
   void getMemberDetail() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    for (int i = 0; i < nameList.length; i++) {
-      print("contact ================== $contactList");
-      String name = nameList[i];
-      String contactN = contactList[i];
-      String msg = "Dear $name,${NameOfUser.trim()} in some trouble"
-          "the last location is bellow "
-          "$full_address\n"
-          "you Can contact: "
-          "$contactNumber1";
-      sendMail(name, contactN, msg);
-      // if (i == nameList.length - 1) {
-      //   // makeCall(contactN);
-      // }
-    }
+    String msg = "Dear Sir,${NameOfUser.trim()} may some trouble last location:"
+        "$full_address\n"
+        "you Can contact:"
+        "$contactNumber1";
+    print("======================$msg");
+    sendMail(msg);
   }
 
-  Future sendMail(String name, String con, String message) async {
-    print("================ contact  $con");
-    try {
-      SmsSender smsSender = SmsSender();
-      SmsMessage smsMessage = SmsMessage(con.trim(), message);
-      smsSender.sendSms(smsMessage);
-      ShowSnackBar.showInSnackBar("Message sent", context, Colors.red);
-    } catch (e) {
-      print("exception============== ${e.toString()}");
+  Future sendMail(String message) async {
+    // print("-------------------------under sendMain  $contactList");
+    String result = await sendSMS(
+            message: message, recipients: contactList, sendDirect: true)
+        .catchError((onError) {
+      print("error ================ $onError");
+    });
+    ShowSnackBar.showInSnackBar(
+        result == null ? "Message not sent" : "Message sent",
+        context,
+        Colors.green);
+  }
+
+  void smsPermission() async {
+    var status = await Permission.sms.status;
+    if (status.isDenied) {
+      await Permission.sms.request();
     }
   }
 
@@ -350,17 +438,24 @@ class _DemoPageState extends State<DemoPage> {
       ShowSnackBar.showInSnackBar(
           "Location permission are permanetly denied", context, Colors.red);
     }
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    print("========= location ${position.latitude}  ${position.longitude}");
-    placemarkFromCoordinates(position.latitude, position.longitude)
-        .then((List<Placemark> placemark) {
-      Placemark place = placemark[0];
-      print(
-          "address=========${place.locality}==========${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}");
-      full_address =
-          "The Location is ${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}";
-    });
+    getlocation();
+    smsPermission();
+  }
+
+  void getlocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      placemarkFromCoordinates(position.latitude, position.longitude)
+          .then((List<Placemark> placemark) {
+        Placemark place = placemark[0];
+        full_address =
+            " ${place.street},${place.subLocality},${place.subAdministrativeArea},${place.postalCode}";
+        print("full address is =====================" + full_address);
+      });
+    } catch (e) {
+      print("Excption========================= ${e.toString()}");
+    }
   }
 
   void getTotalNumberOfContactDetails() async {
@@ -371,6 +466,7 @@ class _DemoPageState extends State<DemoPage> {
     Userpasword = sharedPreferences.getString("UserPass")!;
     NameOfUser = sharedPreferences.getString("UserName")!;
     contactNumber1 = sharedPreferences.getString("UserContact")!;
+    print("**************************** contact list is $contactList");
     setState(() {});
   }
 
@@ -388,13 +484,4 @@ class _DemoPageState extends State<DemoPage> {
     sharedPreferences.setStringList("contactList", contactList);
     sharedPreferences.setStringList("relationList", relationList);
   }
-
-  // makeCall(String num) async {
-  //   final url = 'tel:${num.trim()}';
-  //   if (await canLaunch(url)) {
-  //     await launch(url);
-  //   } else {
-  //     print('=============Could not launch $url');
-  //   }
-  // }
 }

@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:motion_detection/relation_provider.dart';
 import 'package:motion_detection/show_snack_bar.dart';
@@ -10,7 +9,6 @@ import 'drop_down_list.dart';
 class ContactDetailSave extends StatelessWidget {
   TextEditingController name = TextEditingController();
   TextEditingController contextNumber = TextEditingController();
-  TextEditingController email = TextEditingController();
 
   ContactDetailSave({super.key});
 
@@ -49,13 +47,6 @@ class ContactDetailSave extends StatelessWidget {
                     textbox(
                       name,
                       "Name",
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    textbox(
-                      email,
-                      "Email",
                     ),
                     const SizedBox(
                       height: 5,
@@ -121,12 +112,6 @@ class ContactDetailSave extends StatelessWidget {
               if (name.text.toString().isEmpty) {
                 ShowSnackBar.showInSnackBar("Enter Name", context, Colors.red);
                 print("====== Name is empty");
-              } else if (email.text.toString().isEmpty) {
-                ShowSnackBar.showInSnackBar("Enter Email", context, Colors.red);
-                print("========= email is empty");
-              } else if (!EmailValidator.validate(email.text.toString())) {
-                ShowSnackBar.showInSnackBar(
-                    "Enter Valid Email", context, Colors.red);
               } else if (contextNumber.text.toString().isEmpty) {
                 ShowSnackBar.showInSnackBar(
                     "Enter context number", context, Colors.red);

@@ -19,9 +19,8 @@ class StoreValueInSharedPreference {
     sharedPreferences.setStringList("nameList", nameList);
     sharedPreferences.setStringList("contactList", contactList);
     sharedPreferences.setStringList("relationList", relationList);
-    // sharedPreferences.setString("name1", name);
+    sharedPreferences.setString("name1", name);
     // sharedPreferences.setString("contact1", contact);
-    // sharedPreferences.setString("email1", email);
     // sharedPreferences.setString("relation1", relation);
   }
 
@@ -47,7 +46,7 @@ class StoreValueInSharedPreference {
   }
 
   static void personalDetails(
-      String name, String contact, String contact2, String password) async {
+      String name, String contact, String password) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString("UserName", name);
     sharedPreferences.setString("UserContact", contact);

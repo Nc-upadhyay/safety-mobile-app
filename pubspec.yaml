@@ -40,13 +40,12 @@ dependencies:
   awesome_notifications: ^0.7.4+1
   shared_preferences: ^2.1.0
   provider:
-  email_validator: ^2.1.17
-  http: ^0.13.6
   geolocator: ^9.0.2
-  flutter_email_sender: ^5.2.0
   geocode: 1.0.2
   geocoding: ^2.1.0
-  sms: ^0.2.4
+  flutter_sms: ^2.3.3
+  permission_handler: ^10.3.0
+
 
 
 dev_dependencies:

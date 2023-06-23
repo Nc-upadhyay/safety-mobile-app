@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:motion_detection/personal_information.dart';
 import 'package:motion_detection/relation_provider.dart';
@@ -11,7 +10,6 @@ import 'drop_down_list.dart';
 class SplaceScreensWs extends StatelessWidget {
   TextEditingController name = TextEditingController();
   TextEditingController contextNumber = TextEditingController();
-  TextEditingController email = TextEditingController();
 
   // VoidCallback onTap;
 
@@ -48,13 +46,6 @@ class SplaceScreensWs extends StatelessWidget {
                     textbox(
                       name,
                       "Name of your relative",
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    textbox(
-                      email,
-                      "Email of your relative",
                     ),
                     const SizedBox(
                       height: 5,
@@ -120,12 +111,6 @@ class SplaceScreensWs extends StatelessWidget {
               if (name.text.toString().isEmpty) {
                 ShowSnackBar.showInSnackBar("Enter Name", context, Colors.red);
                 print("====== Name is empty");
-              } else if (email.text.toString().isEmpty) {
-                ShowSnackBar.showInSnackBar("Enter Email", context, Colors.red);
-                print("========= email is empty");
-              } else if (!EmailValidator.validate(email.text.toString())) {
-                ShowSnackBar.showInSnackBar(
-                    "Enter Valid Email", context, Colors.red);
               } else if (contextNumber.text.toString().isEmpty) {
                 ShowSnackBar.showInSnackBar(
                     "Enter context number", context, Colors.red);
