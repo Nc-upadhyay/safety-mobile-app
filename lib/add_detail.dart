@@ -10,7 +10,7 @@ class GetContactDetail {
   TextEditingController name = TextEditingController();
   TextEditingController contextNumber = TextEditingController();
 
-  getContactDetail(BuildContext context) {
+  addContactDetail(BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {
@@ -85,7 +85,7 @@ class GetContactDetail {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text('Yes')),
+                  child: const Text('Save')),
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);

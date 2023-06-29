@@ -5,6 +5,7 @@ import 'package:flutter_sms/flutter_sms.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:motion_detection/check_user_visit_first_time.dart';
+import 'package:motion_detection/logout.dart';
 import 'package:motion_detection/notification_service.dart';
 import 'package:motion_detection/relation_provider.dart';
 import 'package:motion_detection/show_snack_bar.dart';
@@ -13,7 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:shake/shake.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'get_detail.dart';
+import 'add_detail.dart';
+import 'change_password.dart';
 
 void main() {
   AwesomeNotifications().initialize(
@@ -132,70 +134,87 @@ class _DemoPageState extends State<DemoPage> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Sefety App"),
+        ),
         drawer: Drawer(
-            child: Column(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  ListView(
-                    padding: EdgeInsets.all(0),
-                    children: [
-                      const DrawerHeader(
-                          child: UserAccountsDrawerHeader(
-                        decoration: BoxDecoration(color: Colors.green),
-                        accountName: Text(
-                          "abc",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        currentAccountPictureSize: Size.square(50),
-                        currentAccountPicture: CircleAvatar(
-                          backgroundColor: Color.fromARGB(255, 165, 255, 137),
-                          child: Text("A"),
-                        ),
-                        accountEmail: null,
-                      )),
-                      ListTile(
-                        leading: const Icon(Icons.person),
-                        title: const Text(" My Profile"),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.edit),
-                        title: const Text("Change Password"),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.add),
-                        title: const Text("Add contact"),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.logout),
-                        title: const Text("LogOut"),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.contact_emergency),
-                        title: const Text("Send Message"),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
+          child: ListView(
+            padding: EdgeInsets.all(0),
+            children: [
+              DrawerHeader(
+                  child: UserAccountsDrawerHeader(
+                decoration: BoxDecoration(color: Colors.green),
+                accountName: Text(
+                  NameOfUser.isEmpty ? "" : NameOfUser,
+                  style: TextStyle(fontSize: 18),
+                ),
+                currentAccountPictureSize: Size.square(50),
+                currentAccountPicture: CircleAvatar(
+                  backgroundColor: Color.fromARGB(255, 165, 255, 137),
+                  child: Text(
+                    NameOfUser[0].toUpperCase(),
+                    style: const TextStyle(fontSize: 25),
                   ),
-                ],
+                ),
+                accountEmail: null,
+              )),
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text(" My Profile"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
               ),
-            ),
-            Container(
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text("Change Password"),
+                onTap: () {
+                  Navigator.pop(context);
+                  ChangePassword().changePassword(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.add),
+                title: const Text("Add contact"),
+                onTap: () {
+                  Navigator.pop(context);
+                  GetContactDetail().addContactDetail(context);
+                  Future.delayed(const Duration(milliseconds: 15000), () {
+                    setState(() {
+                      super.setState(() {
+                        contactList.length;
+                      });
+                    });
+                  });
+                  ShowSnackBar.showInSnackBar(
+                      "It will add shortly", context, Colors.greenAccent);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.send),
+                title: const Text("Send Message"),
+                onTap: () {
+                  ShowSnackBar.showInSnackBar(
+                      "This feature added soon", context, Colors.green);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text("LogOut"),
+                onTap: () {
+                  Logout().logout();
+                  Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return const CheckUserVistFirstTimeOrNot();
+                  }), (r) {
+                    return false;
+                  });
+                },
+              ),
+            ],
+          ),
+          /*   Container(
               child: Align(
                 alignment: FractionalOffset.bottomCenter,
                 child: Column(
@@ -207,9 +226,8 @@ class _DemoPageState extends State<DemoPage> {
                   ],
                 ),
               ),
-            )
-          ],
-        )),
+            )*/
+        ),
         bottomSheet: Container(
             color: Colors.greenAccent,
             height: 150,
@@ -359,7 +377,7 @@ class _DemoPageState extends State<DemoPage> {
               },
               child: const Padding(
                 padding: EdgeInsets.only(
-                  left: 30,
+                  left: 32,
                 ),
                 child: Icon(
                   Icons.minimize,
@@ -368,9 +386,9 @@ class _DemoPageState extends State<DemoPage> {
                 ),
               ),
             ),
-            InkWell(
+            /*InkWell(
               onTap: () {
-                GetContactDetail().getContactDetail(context);
+                GetContactDetail().addContactDetail(context);
                 Future.delayed(const Duration(milliseconds: 15000), () {
                   setState(() {
                     super.setState(() {
@@ -382,7 +400,7 @@ class _DemoPageState extends State<DemoPage> {
                     "It will add shortly", context, Colors.greenAccent);
               },
               child: const Icon(Icons.add),
-            )
+            )*/
           ]),
           Text(name),
           Text(relationList[i]),
