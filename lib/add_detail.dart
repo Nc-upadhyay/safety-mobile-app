@@ -47,7 +47,7 @@ class GetContactDetail {
                           horizontal: 5, vertical: 3),
                       child: TextFormField(
                         controller: contextNumber,
-                        maxLength: 15,
+                        maxLength: 10,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please ente relativer contact Number';

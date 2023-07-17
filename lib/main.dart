@@ -92,15 +92,13 @@ class _DemoPageState extends State<DemoPage> {
       }
     });
 
-    // locationPermission
-
     ShakeDetector shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if (isButtonPress) {
         triggerNotifications();
       }
-      count++;
-      Future.delayed(const Duration(milliseconds: 1000), () {
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (isButtonPress && !isDialogOpen) {
+          getUpdatedUserName();
           showAlert();
           getlocation();
           isDialogOpen = true;
@@ -152,7 +150,7 @@ class _DemoPageState extends State<DemoPage> {
                 currentAccountPicture: CircleAvatar(
                   backgroundColor: Color.fromARGB(255, 165, 255, 137),
                   child: Text(
-                    NameOfUser[0].toUpperCase(),
+                    NameOfUser.isEmpty ? "" : NameOfUser[0].toUpperCase(),
                     style: const TextStyle(fontSize: 25),
                   ),
                 ),
@@ -162,6 +160,8 @@ class _DemoPageState extends State<DemoPage> {
                 leading: const Icon(Icons.person),
                 title: const Text(" My Profile"),
                 onTap: () {
+                  ShowSnackBar.showInSnackBar(
+                      "It will add shortly", context, Colors.green);
                   Navigator.pop(context);
                 },
               ),
@@ -170,6 +170,7 @@ class _DemoPageState extends State<DemoPage> {
                 title: const Text("Change Password"),
                 onTap: () {
                   Navigator.pop(context);
+
                   ChangePassword().changePassword(context);
                 },
               ),
@@ -179,13 +180,17 @@ class _DemoPageState extends State<DemoPage> {
                 onTap: () {
                   Navigator.pop(context);
                   GetContactDetail().addContactDetail(context);
-                  Future.delayed(const Duration(milliseconds: 15000), () {
+                  Future.delayed(const Duration(seconds: 20), () {
+                    getTotalNumberOfContactDetails();
                     setState(() {
                       super.setState(() {
+                        print(
+                            "===================== after run=================");
                         contactList.length;
                       });
                     });
                   });
+
                   ShowSnackBar.showInSnackBar(
                       "It will add shortly", context, Colors.greenAccent);
                 },
@@ -254,9 +259,11 @@ class _DemoPageState extends State<DemoPage> {
   }
 
   showAlert() {
+    print("-----------------------Alert box is open---------------$count");
     showDialog(
         context: context,
         builder: (context) {
+          count++;
           return AlertDialog(
             title: const Text(
               "if you'r save then enter password please",
@@ -297,9 +304,21 @@ class _DemoPageState extends State<DemoPage> {
                     } else {
                       if (matchPassword()) {
                         isDialogOpen = false;
+
                         countWrongPassword = 0;
                         passwordEditingController.clear();
-                        Navigator.pop(context);
+                        ShowSnackBar.showInSnackBar(
+                            "Password match", context, Colors.green);
+                        setState(() {
+                          isDialogOpen = false;
+                        });
+                        //  Navigator.pop(context);
+                        while (count > 0) {
+                          print("====================== count is  $count");
+                          Navigator.pop(context);
+                          count--;
+                        }
+                        count = 0;
                       } else {
                         countWrongPassword++;
                         if (countWrongPassword < 3) {
@@ -308,6 +327,8 @@ class _DemoPageState extends State<DemoPage> {
                               context,
                               Colors.red);
                         } else {
+                          countWrongPassword = 0;
+                          passwordEditingController.clear();
                           ShowSnackBar.showInSnackBar(
                               "Your exceed the limit ", context, Colors.red);
                         }
@@ -316,7 +337,13 @@ class _DemoPageState extends State<DemoPage> {
                           getMemberDetail(); // sending mail to his/her family
                           isDialogOpen = false;
                           passwordEditingController.clear();
-                          Navigator.pop(context);
+                          //Navigator.pop(context);
+                          while (count > 0) {
+                            print("----------------------count is  $count ");
+                            Navigator.pop(context);
+                            count--;
+                          }
+                          count = 0;
                         }
                       }
                     }
@@ -347,9 +374,11 @@ class _DemoPageState extends State<DemoPage> {
   bool matchPassword() {
     print("${passwordEditingController.text}");
     if (passwordEditingController.text.compareTo(Userpasword) == 0) {
-      print("============= pasword match");
+      print("=================== password is match${Userpasword}");
       return true;
     } else {
+      print("=================== password is not match ${Userpasword}");
+
       return false;
     }
   }
@@ -485,7 +514,14 @@ class _DemoPageState extends State<DemoPage> {
     NameOfUser = sharedPreferences.getString("UserName")!;
     contactNumber1 = sharedPreferences.getString("UserContact")!;
     print("**************************** contact list is $contactList");
+    print("**************************** password is  $Userpasword");
     setState(() {});
+  }
+
+  getUpdatedUserName() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    Userpasword = sharedPreferences.getString("UserPass")!;
+    print("====================== userPassword is $Userpasword");
   }
 
   void removeFormSharedPreference(int i) {

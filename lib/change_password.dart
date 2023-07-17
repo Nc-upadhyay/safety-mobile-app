@@ -4,92 +4,117 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangePassword {
   TextEditingController newPasswordController = TextEditingController();
-  TextEditingController oldPasswordController = TextEditingController();
-  var oldpassword = "";
+  TextEditingController secretKeyController = TextEditingController();
+  String secretKey = "";
 
   changePassword(BuildContext context) {
-    oldpassword = getOldPassword() as String;
+    getOldPassword();
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Change Password"),
-            content: Column(
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Enter old password"),
-                      TextFormField(
-                        controller: newPasswordController,
-                        maxLength: 15,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Enter old password';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            hintText: 'Enter old password'),
-                      ),
-                    ],
+            title: const Text(
+              "Change Password",
+              style: TextStyle(color: Colors.green),
+            ),
+            content: SizedBox(
+              height: 250,
+              child: Column(
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Enter Secret Key",
+                            style: TextStyle(
+                              color: Colors.green,
+                            )),
+                        TextFormField(
+                          controller: secretKeyController,
+                          maxLength: 15,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter 4 Digit Secret Key';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                              hintText: 'Enter Secret Key'),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Enter new password"),
-                      TextFormField(
-                        controller: oldPasswordController,
-                        maxLength: 15,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Enter old password';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            hintText: 'Enter old password'),
-                      ),
-                    ],
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Enter new password",
+                          style: TextStyle(color: Colors.green),
+                        ),
+                        TextFormField(
+                          controller: newPasswordController,
+                          maxLength: 15,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter new password';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                              hintText: 'Enter new password'),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             actions: [
               TextButton(
                   onPressed: () {
-                    if (oldPasswordController.text.toString().trim() ==
-                        oldpassword.trim()) {
+                    if (secretKeyController.text.toString() == "" ||
+                        secretKeyController.text.isEmpty) {
+                      ShowSnackBar.showInSnackBar(
+                          "Enter secret key", context, Colors.red);
+                    } else if (newPasswordController.text.toString() == "" ||
+                        newPasswordController.text.isEmpty) {
+                      ShowSnackBar.showInSnackBar(
+                          "Enter New password not match", context, Colors.red);
+                    } else if (secretKeyController.text.toString().trim() ==
+                        secretKey.trim()) {
                       saveNewPassword(newPasswordController.text.toString());
                       ShowSnackBar.showInSnackBar(
                           "Password Update", context, Colors.green);
+                      Navigator.pop(context);
                     } else {
                       ShowSnackBar.showInSnackBar(
-                          "Password not match", context, Colors.red);
+                          "Secret Key Not Match", context, Colors.red);
                     }
                   },
                   child: const Text("Save")),
-              TextButton(onPressed: () {}, child: const Text("Cancel"))
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"))
             ],
           );
         });
   }
 
-  Future<String> getOldPassword() async {
+  getOldPassword() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var password = sharedPreferences.getString("UserPass");
-    return password ?? "";
+    var password = sharedPreferences.getString("secretKey");
+    secretKey = password ?? "";
   }
 
   saveNewPassword(String password) async {

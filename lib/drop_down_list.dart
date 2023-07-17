@@ -6,8 +6,10 @@ class CreateDropDown extends StatelessWidget {
   static const List<String> list = [
     "Father",
     "Mother",
+    "Son",
     "Sister",
     "Brother",
+    "Friend",
     "Other"
   ];
 

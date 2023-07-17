@@ -15,6 +15,7 @@ class _PersonalInformationState extends State<PersonalInformation> {
   TextEditingController name = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController contact = TextEditingController();
+  TextEditingController secretKeyController = TextEditingController();
   bool passwordVisible = false;
 
   @override
@@ -84,6 +85,24 @@ class _PersonalInformationState extends State<PersonalInformation> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
             child: TextFormField(
+              controller: secretKeyController,
+              maxLength: 4,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Please enter secret key";
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                  suffixIcon: const Icon(Icons.key),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(7)),
+                  hintText: "Enter 4 Digit Secret key"),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+            child: TextFormField(
               controller: contact,
               maxLength: 10,
               validator: (value) {
@@ -111,12 +130,15 @@ class _PersonalInformationState extends State<PersonalInformation> {
                 } else if (password.text.toString().isEmpty) {
                   ShowSnackBar.showInSnackBar(
                       "Enter password", context, Colors.red);
+                } else if (secretKeyController.text.toString().isEmpty) {
+                  ShowSnackBar.showInSnackBar(
+                      "Enter secret key", context, Colors.red);
                 } else if (contact.text.toString().isEmpty) {
                   ShowSnackBar.showInSnackBar(
                       "Enter primary contact number", context, Colors.red);
                 } else {
-                  StoreValueInSharedPreference.personalDetails(
-                      name.text, contact.text, password.text);
+                  StoreValueInSharedPreference.personalDetails(name.text,
+                      contact.text, password.text, secretKeyController.text);
                   Navigator.of(context)
                       .push(MaterialPageRoute(
                           builder: (context) => const DemoPage()))

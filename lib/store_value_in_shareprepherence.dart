@@ -46,10 +46,11 @@ class StoreValueInSharedPreference {
   }
 
   static void personalDetails(
-      String name, String contact, String password) async {
+      String name, String contact, String password, String secretKey) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString("UserName", name);
     sharedPreferences.setString("UserContact", contact);
     sharedPreferences.setString("UserPass", password);
+    sharedPreferences.setString("secretKey", secretKey);
   }
 }
